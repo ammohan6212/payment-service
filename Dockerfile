@@ -1,7 +1,7 @@
 # ---------------------------
 # Stage 1: Build
 # ---------------------------
-FROM rust:1.72 as builder
+FROM rust:1.72 AS builder
 
 # Create app directory
 WORKDIR /usr/src/cart-service
