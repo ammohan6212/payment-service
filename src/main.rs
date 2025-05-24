@@ -1,6 +1,6 @@
 use actix_web::{get, App, HttpResponse, HttpServer, Responder};
 
-#[get("/welcome")]
+#[get("/payment")]
 async fn welcome() -> impl Responder {
     HttpResponse::Ok().body("Welcome to the cart service")
 }
