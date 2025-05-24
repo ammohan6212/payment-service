@@ -1,36 +1,42 @@
 # ---------------------------
-# Stage 1: Build
+# Stage 1: Build (MUSL target)
 # ---------------------------
-FROM rust:1.82 AS builder
+FROM rust:1.82 as builder
 
+# Install musl target for static linking
+RUN rustup target add x86_64-unknown-linux-musl
 
 WORKDIR /usr/src/cart-service
 
-# Copy Cargo.toml and Cargo.lock
+# Copy manifest files and fetch dependencies first
 COPY Cargo.toml Cargo.lock ./
 
-# Create a dummy src to cache dependencies
+# Cache dependencies
 RUN mkdir src && echo "fn main() {}" > src/main.rs
-RUN cargo build --release
+RUN cargo build --release --target x86_64-unknown-linux-musl
 RUN rm -rf src
 
-# Copy actual source code
+# Copy source code and build real binary
 COPY src/ ./src/
-
-# Build the real binary
-RUN cargo build --release
+RUN cargo build --release --target x86_64-unknown-linux-musl
 
 # ---------------------------
-# Stage 2: Runtime
+# Stage 2: Runtime (Alpine)
 # ---------------------------
-FROM debian:bullseye-slim
+FROM alpine:latest
 
-RUN useradd -m appuser
+# Create a non-root user
+RUN adduser -D appuser
 
+# Create working directory
 WORKDIR /app
-COPY --from=builder /usr/src/cart-service/target/release/cart-service .
 
+# Copy the statically linked binary from builder
+COPY --from=builder /usr/src/cart-service/target/x86_64-unknown-linux-musl/release/cart-service .
+
+# Set permissions and expose port
+USER appuser
 EXPOSE 8080
 
-USER appuser
+# Run the service
 CMD ["./cart-service"]
