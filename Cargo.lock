@@ -303,13 +303,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cart-service"
-version = "0.1.0"
-dependencies = [
- "actix-web",
-]
-
-[[package]]
 name = "cc"
 version = "1.2.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -833,6 +826,13 @@ dependencies = [
  "redox_syscall",
  "smallvec",
  "windows-targets",
+]
+
+[[package]]
+name = "payment_service"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
 ]
 
 [[package]]

@@ -1,38 +1,38 @@
-# ---------------------------
-# Stage 1: Build (MUSL target)
-# ---------------------------
-FROM rust:1.82 AS builder
+# Use the official Rust image as builder
+FROM rust:1.77 as builder
 
-# Install musl-tools and other dependencies
-RUN apt-get update && \
-    apt-get install -y musl-tools pkg-config && \
-    rustup target add x86_64-unknown-linux-musl
+# Create a new directory inside container
+WORKDIR /usr/src/payment_service
 
-WORKDIR /usr/src/cart-service
+# Copy the Cargo.toml and Cargo.lock files first (for caching dependencies)
+COPY Cargo.toml .
+COPY Cargo.lock .
 
-# Copy manifest files first
-COPY Cargo.toml Cargo.lock ./
+# Create an empty src directory to trick cargo into fetching dependencies
+RUN mkdir src
+RUN echo "fn main() {}" > src/main.rs
 
-# Cache dependencies
-RUN mkdir src && echo "fn main() {}" > src/main.rs
-RUN cargo build --release --target x86_64-unknown-linux-musl
-RUN rm -rf src
+# Pre-fetch dependencies (this layer will be cached)
+RUN cargo build --release
+RUN rm -f src/main.rs
 
-# Copy actual source
-COPY src/ ./src/
-RUN cargo build --release --target x86_64-unknown-linux-musl
+# Now copy the actual source code
+COPY src ./src
 
-# ---------------------------
-# Stage 2: Runtime (Alpine)
-# ---------------------------
-FROM alpine:latest
+# Build the actual app
+RUN cargo build --release
 
-RUN adduser -D appuser
+# Use a minimal base image for the final container
+FROM debian:buster-slim
 
-WORKDIR /app
-COPY --from=builder /usr/src/cart-service/target/x86_64-unknown-linux-musl/release/cart-service .
+# Install required system dependencies (if needed by Actix)
+RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
 
-USER appuser
+# Copy the compiled binary from builder
+COPY --from=builder /usr/src/payment_service/target/release/payment_service /usr/local/bin/payment_service
+
+# Expose port 8080
 EXPOSE 8080
 
-CMD ["./cart-service"]
+# Run the binary
+CMD ["payment_service"]
