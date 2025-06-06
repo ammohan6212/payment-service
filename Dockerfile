@@ -1,5 +1,5 @@
 # Stage 1: build the Rust app
-FROM rust:1.83 as builder
+FROM rust:1.83 AS builder
 
 # Create app directory inside the container
 WORKDIR /usr/src/payment_service
