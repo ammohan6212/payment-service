@@ -15,7 +15,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .service(payment_message) // register the service
     })
-    .bind(("127.0.0.1", 8081))? // bind to localhost:8080
+    .bind(("127.0.0.1", 8080))? // bind to localhost:8080
     .run()
     .await
 }
