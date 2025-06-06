@@ -1,7 +1,7 @@
 use actix_web::{get, App, HttpResponse, HttpServer, Responder};
 
 // Define GET endpoint /payment/message
-#[get("/payment/")]
+#[get("/payment")]
 async fn payment_message() -> impl Responder {
     HttpResponse::Ok().body("Welcome to the payment service")
 }
