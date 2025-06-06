@@ -11,7 +11,7 @@ COPY . .
 RUN cargo build --release
 
 # Stage 2: create minimal runtime image
-FROM debian:buster-slim
+FROM debian:bullseye-slim
 
 # Install certificates (needed for HTTPS etc.)
 RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
