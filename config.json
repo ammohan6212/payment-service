@@ -1,5 +1,5 @@
 {
-    "github_repo": "https://github.com/ammohan6212/frontend2.git",
+    "github_repo": "https://github.com/ammohan6212/payment-service.git",
     "serviceName": "payment-service",
     "notificationRecipients": "mohan14242@gmail.com",
     "docker_username": "dockeruser123",
