@@ -5,7 +5,7 @@ mod utils;
 use axum::{
     routing::{get, post},
     Router,
-    serve::serve, // ✅ Import serve explicitly from axum::serve
+    serve::serve,
 };
 use sqlx::postgres::PgPoolOptions;
 use std::env;
@@ -15,10 +15,8 @@ use tracing_subscriber;
 
 #[tokio::main]
 async fn main() {
-    // Initialize tracing/logging
     tracing_subscriber::fmt::init();
 
-    // Read DATABASE_URL from env
     let database_url = env::var("DATABASE_URL")
         .expect("❌ DATABASE_URL must be set in environment");
 
@@ -30,13 +28,33 @@ async fn main() {
         .expect("❌ Failed to connect to the database");
     tracing::info!("✅ Connected to database");
 
+    // ✅ Create table if it doesn't exist
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS orders (
+            id SERIAL PRIMARY KEY,
+            username TEXT NOT NULL,
+            item_id TEXT NOT NULL,
+            item_name TEXT NOT NULL,
+            price NUMERIC NOT NULL,
+            quantity INTEGER NOT NULL,
+            image_url TEXT,
+            payment_method TEXT NOT NULL,
+            total NUMERIC NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        "#,
+    )
+    .execute(&pool)
+    .await
+    .expect("❌ Failed to create orders table");
+
     // Define application routes
     let app = Router::new()
         .route("/payment", post(handlers::payment::process_payment))
         .route("/payments", get(handlers::payment::get_all_payments))
         .with_state(pool);
 
-    // Determine the port to listen on
     let port = env::var("PORT")
         .ok()
         .and_then(|s| s.parse().ok())
@@ -45,7 +63,6 @@ async fn main() {
 
     tracing::info!("🚀 Starting server at http://{}", addr);
 
-    // Bind and serve the application
     let listener = TcpListener::bind(addr).await.unwrap();
     serve(listener, app).await.unwrap();
 }
