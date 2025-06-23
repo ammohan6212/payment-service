@@ -2,7 +2,7 @@ mod handlers;
 mod models;
 mod utils;
 
-use axum::{routing::{get, post}, Router};
+use axum::{routing::{get, post}, Router,Server};
 use sqlx::postgres::PgPoolOptions;
 use std::env;
 use std::net::SocketAddr;

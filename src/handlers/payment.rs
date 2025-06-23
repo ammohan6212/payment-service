@@ -1,6 +1,7 @@
 use axum::{extract::State, Json};
 use axum::http::StatusCode;
 use sqlx::PgPool;
+use sqlx::query; 
 
 use crate::models::cart_item::{CartItem, CartItemRecord};
 use crate::utils::response::ApiResponse;
