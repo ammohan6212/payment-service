@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use sqlx::FromRow;
 
 #[derive(Debug, Deserialize)]
 pub struct CartItem {
@@ -12,7 +13,7 @@ pub struct CartItem {
     pub total: f64,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, FromRow)]
 pub struct CartItemRecord {
     pub username: String,
     pub item_id: String,
