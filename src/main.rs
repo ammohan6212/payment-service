@@ -2,10 +2,7 @@ mod handlers;
 mod models;
 mod utils;
 
-use axum::{
-    routing::{get, post},
-    Router,
-};
+use axum::{routing::{get, post}, Router, Server};
 use sqlx::postgres::PgPoolOptions;
 use std::net::SocketAddr;
 
@@ -26,9 +23,8 @@ async fn main() {
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 8081));
     println!("🚀 Server running at http://{}", addr);
-    axum::Server::bind(&addr)
+    Server::bind(&addr)
         .serve(app.into_make_service())
         .await
         .unwrap();
 }
-
