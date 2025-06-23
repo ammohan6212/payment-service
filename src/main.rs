@@ -1,4 +1,8 @@
-use axum::{routing::{get, post}, Router, serve};
+mod handlers;
+mod models;
+mod utils;
+
+use axum::{routing::{get, post}, Router};
 use sqlx::postgres::PgPoolOptions;
 use std::env;
 use std::net::SocketAddr;
