@@ -32,16 +32,18 @@ async fn main() {
     sqlx::query(
         r#"
         CREATE TABLE IF NOT EXISTS orders (
-            id SERIAL PRIMARY KEY,
-            username TEXT NOT NULL,
-            item_id TEXT NOT NULL,
-            item_name TEXT NOT NULL,
-            price NUMERIC NOT NULL,
-            quantity INTEGER NOT NULL,
-            image_url TEXT,
-            payment_method TEXT NOT NULL,
-            total NUMERIC NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        id SERIAL PRIMARY KEY,
+        username TEXT NOT NULL,
+        item_id TEXT NOT NULL,
+        item_name TEXT NOT NULL,
+        price NUMERIC NOT NULL,
+        quantity INTEGER NOT NULL,
+        image_url TEXT,
+        payment_method TEXT NOT NULL,
+        total NUMERIC NOT NULL,
+        seller_name TEXT NOT NULL,
+        address TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         "#,
     )

@@ -20,8 +20,10 @@ pub async fn process_payment(
                 quantity,
                 image_url,
                 payment_method,
-                total
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                total,
+                seller_name,
+                address
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8,$9,$10)
             "#
         )
         .bind(&item.username)
@@ -32,6 +34,8 @@ pub async fn process_payment(
         .bind(&item.image_url)
         .bind(&item.payment_method)
         .bind(item.total)
+        .bind(&item.seller_name)
+        .bind(&item.address)
         .execute(&pool)
         .await
         .map_err(|e| {
@@ -59,7 +63,9 @@ pub async fn get_all_payments(
             quantity,
             image_url,
             payment_method,
-            total
+            total,
+            seller_name
+            address
         FROM orders
         ORDER BY created_at DESC
         "#

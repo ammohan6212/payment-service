@@ -11,6 +11,8 @@ pub struct CartItem {
     pub image_url: String,
     pub payment_method: String,
     pub total: f64,
+    pub seller_name: String, 
+    pub address: String,// ✅ Added seller name
 }
 
 #[derive(Debug, Serialize, FromRow)]
@@ -23,4 +25,6 @@ pub struct CartItemRecord {
     pub image_url: String,
     pub payment_method: String,
     pub total: f64,
+    pub seller_name: String,
+    pub address: String, // ✅ Added seller name
 }
