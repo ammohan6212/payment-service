@@ -1,25 +1,25 @@
-# Stage 1: build the Rust app
-FROM rust:1.83 AS builder
+# Stage 1: Build
+FROM rustlang/rust:nightly AS builder
 
-# Create app directory inside the container
 WORKDIR /usr/src/payment_service
 
-# Copy the full project (Cargo.toml + Cargo.lock + src folder)
+# Install dependencies needed for building with sqlx and Postgres
+RUN apt-get update && apt-get install -y libpq-dev pkg-config
+
 COPY . .
 
-# Build the app in release mode
 RUN cargo build --release
 
-# Stage 2: create minimal runtime image
+# Stage 2: Runtime
 FROM debian:bookworm-slim
-# Install certificates (needed for HTTPS etc.)
-RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
 
-# Copy compiled binary from builder
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    libpq5 \
+ && rm -rf /var/lib/apt/lists/*
+
 COPY --from=builder /usr/src/payment_service/target/release/payment_service /usr/local/bin/payment_service
 
-# Expose port 8080
-EXPOSE 8080
+EXPOSE 8081
 
-# Command to run the app
 CMD ["payment_service"]
