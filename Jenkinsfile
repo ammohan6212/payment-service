@@ -80,13 +80,13 @@ pipeline {
                 //         waitForQualityGate abortPipeline: true
                 //     }
                 // }
-                // stage("Mutation Testing and snapshot and component testing at Dev") {
-                //     steps {
-                //         runMutationTests(env.DETECTED_LANG)
-                //         runSnapshotTests(env.DETECTED_LANG)
-                //         runComponentTests(env.DETECTED_LANG)
-                //     }
-                // }
+                stage("Mutation Testing and snapshot and component testing at Dev") {
+                    steps {
+                        runMutationTests(env.DETECTED_LANG)
+                        runSnapshotTests(env.DETECTED_LANG)
+                        runComponentTests(env.DETECTED_LANG)
+                    }
+                }
                 stage("Building the Application") {
                     steps {
                         buildApplication(env.DETECTED_LANG)
@@ -159,13 +159,13 @@ pipeline {
                         performSanityTesting(env.DETECTED_LANG)
                         performApiTesting(env.DETECTED_LANG)
                         performIntegrationTesting(env.DETECTED_LANG)
-                        performDatabaseTesting()
-                        // performLightUiTests(env.DETECTED_LANG)
-                        // performRegressionTesting(env.DETECTED_LANG)
-                        // performFeatureFlagChecks(env.DETECTED_LANG)
-                        // performSecurityChecks(env.DETECTED_LANG)
-                        // performChaosTestingAfterDeploy(env.DETECTED_LANG)
-                        // performLoadPerformanceTesting(env.DETECTED_LANG)
+                        performDatabaseTesting(env.DETECTED_LANG)
+                        performLightUiTests(env.DETECTED_LANG)
+                        performRegressionTesting(env.DETECTED_LANG)
+                        performFeatureFlagChecks(env.DETECTED_LANG)
+                        performSecurityChecks(env.DETECTED_LANG)
+                        performChaosTestingAfterDeploy(env.DETECTED_LANG)
+                        performLoadPerformanceTesting(env.DETECTED_LANG)
                     }
                 }                
                 stage("Perform Logging and Monitoring Checks After Dev Deploy") {
