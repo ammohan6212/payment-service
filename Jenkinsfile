@@ -147,7 +147,7 @@ pipeline {
                                     contextName: '',
                                     restrictKubeConfigAccess: false
                                 ) {
-                                    sh """kubectl get pods """
+                                    sh """kubectl create -f . """
                                 }
                             } catch (err) {
                                 echo "Failed to deploy to the dev environment: ${err}"

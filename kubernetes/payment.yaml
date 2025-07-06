@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: payment
-          image: mohan14242ai/payment:1.0
+          image: mohan14242ai/payment-dev:v0.0.0
           imagePullPolicy: Always
           ports:
             - containerPort: 8081
