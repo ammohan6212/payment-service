@@ -147,7 +147,7 @@ pipeline {
                                     contextName: '',
                                     restrictKubeConfigAccess: false
                                 ) {
-                                    sh """kubectl apply -f ${env.service_name}-deployment.yml -n ${env.BRANCH_NAME}"""
+                                    sh """kubectl get pods """
                                 }
                             } catch (err) {
                                 echo "Failed to deploy to the dev environment: ${err}"
