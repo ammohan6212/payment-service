@@ -150,7 +150,7 @@ pipeline {
                                     restrictKubeConfigAccess: false
                                 ) {
                                     dir("kubernetes") {  // 👈 Change this to your folder name
-                                        sh "kubectl create -f ."
+                                        sh "kubectl apply -f ."
                                     }
                                 }
                             } catch (err) {
