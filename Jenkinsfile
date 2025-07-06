@@ -29,7 +29,7 @@ pipeline {
                         env.image_registry=projectConfig.image_registry
                         env.docker_cred_username=projectConfig.docker_cred_username
                         env.docker_cred_password=projectConfig.docker_cred_password
-                        def servicesToCheck = projectConfig.services
+                        servicesToCheck = projectConfig.services
 
                 }
             }
