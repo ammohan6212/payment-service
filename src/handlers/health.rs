@@ -1,5 +1,5 @@
 use axum::{http::StatusCode, response::{IntoResponse, Json}};
-use serde_json::{json, Value};
+use serde_json::{json};
 
 pub async fn health_check() -> impl IntoResponse {
     let body = Json(json!({
