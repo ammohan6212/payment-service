@@ -136,23 +136,26 @@ pipeline {
                         }
                     }
                 }
-                // stage("Deploy to Dev") {
-                //     steps {
-                //         script {
-                //             try {
-                //                 withKubeConfig(
-                //                     caCertificate: env.kubernetesCaCertificate,clusterName: env.kubernetesClusterName,contextName: '',credentialsId: env.kubernetesCredentialsId,namespace: "${env.BRANCH_NAME}",restrictKubeConfigAccess: false,serverUrl: env.kubernetes_endpoint
-                //                 ) {
-                //                     // Change Kubernetes service selector to route traffic to Green
-                //                     sh """kubectl apply -f ${env.service_name}-deployment.yml -n ${env.BRANCH_NAME}"""
-                //                 }
-                //             } catch (err) {
-                //                 echo "failed to deploy to the production ${err}"
-                //                 error("Stopping pipeline")
-                //             }
-                //         }
-                //     }
-                // }
+                stage("Deploy to Dev") {
+                    steps {
+                        script {
+                            try {
+                                withKubeConfig(
+                                    credentialsId: env.kubernetesCredentialsId, // Jenkins credentials ID for your token
+                                    serverUrl: env.kubernetes_endpoint,
+                                    namespace: "${env.BRANCH_NAME}",
+                                    contextName: '',
+                                    restrictKubeConfigAccess: false
+                                ) {
+                                    sh """kubectl apply -f ${env.service_name}-deployment.yml -n ${env.BRANCH_NAME}"""
+                                }
+                            } catch (err) {
+                                echo "Failed to deploy to the dev environment: ${err}"
+                                error("Stopping pipeline")
+                            }
+                        }
+                    }
+                }
                 stage("Perform Smoke Testing and sanity testing and APi testing and integratio testing andlight ui test and regression testing feature flag and chaos and security After Dev Deploy") {
                     steps {
                         performSmokeTesting(env.DETECTED_LANG)
