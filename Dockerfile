@@ -12,8 +12,7 @@ RUN cargo build --release
 
 # Stage 2: Runtime
 # Stage 2: Runtime
-FROM debian:bookworm-slim
-
+FROM debian:trixie-slim
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y \
