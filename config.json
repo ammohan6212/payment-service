@@ -15,6 +15,6 @@
     "aws_credid": "aws-credentials-id",
     "service_port":"8080",
     "image_registry":"https://index.docker.io/v1/",
-    "services": [{"name": "payment", "port": 8081, "expectedCode": "200", "path": "/"}]
+    "services": [{"name": "payment", "port": 8081, "expectedCode": "200", "path": "/health"}]
 }
 

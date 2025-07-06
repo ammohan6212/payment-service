@@ -53,6 +53,7 @@ async fn main() {
 
     // Define application routes
     let app = Router::new()
+        .route("/health", get(handlers::health::health_check))
         .route("/payment", post(handlers::payment::process_payment))
         .route("/payments", get(handlers::payment::get_all_payments))
         .with_state(pool);
