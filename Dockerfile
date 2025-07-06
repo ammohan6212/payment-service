@@ -11,9 +11,12 @@ COPY . .
 RUN cargo build --release
 
 # Stage 2: Runtime
+# Stage 2: Runtime
 FROM debian:bookworm-slim
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && \
+    apt-get upgrade -y && \ # <--- Add this line to upgrade all installed packages
+    apt-get install -y \
     ca-certificates \
     libpq5 \
  && rm -rf /var/lib/apt/lists/*
