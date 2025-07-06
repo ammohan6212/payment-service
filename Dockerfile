@@ -15,7 +15,7 @@ RUN cargo build --release
 FROM debian:bookworm-slim
 
 RUN apt-get update && \
-    apt-get upgrade -y && \ # <--- Add this line to upgrade all installed packages
+    apt-get upgrade -y && \
     apt-get install -y \
     ca-certificates \
     libpq5 \
