@@ -176,7 +176,7 @@ pipeline {
                                     }
                                 }
                             } catch (err) {
-                                echo "Failed to deploy to the dev environment: ${err}"
+                                echo "services are not running : ${err}"
                                 error("Stopping pipeline")
                             }
                         }
