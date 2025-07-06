@@ -29,6 +29,8 @@ pipeline {
                         env.image_registry=projectConfig.image_registry
                         env.docker_cred_username=projectConfig.docker_cred_username
                         env.docker_cred_password=projectConfig.docker_cred_password
+                        def servicesToCheck = projectConfig.services
+
                 }
             }
         }
@@ -158,6 +160,30 @@ pipeline {
                         }
                     }
                 }
+                stage("checking the services that are running or not") {
+                    steps {
+                        script {
+                            try {
+                                withKubeConfig(
+                                    credentialsId: env.kubernetesCredentialsId,
+                                    serverUrl: env.kubernetes_endpoint,
+                                    namespace: "${env.BRANCH_NAME}",
+                                    contextName: '',
+                                    restrictKubeConfigAccess: false
+                                ) {
+                                    dir("kubernetes") {  // 👈 Change this to your folder name
+                                        checkk8services(servicesToCheck, "${env.BRANCH_NAME}")
+                                    }
+                                }
+                            } catch (err) {
+                                echo "Failed to deploy to the dev environment: ${err}"
+                                error("Stopping pipeline")
+                            }
+                        }
+                    }
+                }
+
+
                 stage("Perform Smoke Testing and sanity testing and APi testing and integratio testing andlight ui test and regression testing feature flag and chaos and security After Dev Deploy") {
                     steps {
                         performSmokeTesting(env.DETECTED_LANG)
