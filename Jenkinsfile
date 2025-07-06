@@ -141,13 +141,15 @@ pipeline {
                         script {
                             try {
                                 withKubeConfig(
-                                    credentialsId: env.kubernetesCredentialsId, // Jenkins credentials ID for your token
+                                    credentialsId: env.kubernetesCredentialsId,
                                     serverUrl: env.kubernetes_endpoint,
                                     namespace: "${env.BRANCH_NAME}",
                                     contextName: '',
                                     restrictKubeConfigAccess: false
                                 ) {
-                                    sh """kubectl create -f . """
+                                    dir("kubernetes") {  // 👈 Change this to your folder name
+                                        sh "kubectl create -f ."
+                                    }
                                 }
                             } catch (err) {
                                 echo "Failed to deploy to the dev environment: ${err}"
