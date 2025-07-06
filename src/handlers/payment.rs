@@ -1,6 +1,5 @@
-use axum::{extract::State};
-use axum::{http::StatusCode, response::{IntoResponse, Json}};
-use serde_json::{json, Value};
+use axum::{extract::State, Json};
+use axum::http::StatusCode;
 use sqlx::{PgPool, query, query_as};
 
 use crate::models::cart_item::{CartItem, CartItemRecord};
@@ -79,13 +78,4 @@ pub async fn get_all_payments(
     })?;
 
     Ok(Json(rows))
-}
-
-pub async fn health_check() -> impl IntoResponse {
-    let body = Json(json!({
-        "status": "ok",
-        "message": "Service is running"
-    }));
-
-    (StatusCode::OK, body)
 }
