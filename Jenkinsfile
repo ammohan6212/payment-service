@@ -150,7 +150,9 @@ pipeline {
                                     restrictKubeConfigAccess: false
                                 ) {
                                     dir("kubernetes") {  // 👈 Change this to your folder name
-                                        sh "kubectl apply -f ."
+                                        sh """ 
+                                        helm
+                                         """
                                     }
                                 }
                             } catch (err) {
@@ -182,8 +184,6 @@ pipeline {
                         }
                     }
                 }
-
-
                 stage("Perform Smoke Testing and sanity testing and APi testing and integratio testing andlight ui test and regression testing feature flag and chaos and security After Dev Deploy") {
                     steps {
                         performSmokeTesting(env.DETECTED_LANG)
