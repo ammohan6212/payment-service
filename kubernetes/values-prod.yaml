@@ -1,0 +1,2 @@
+payment:
+  image: mohan14242ai/payment-prod:v1.0.0 
