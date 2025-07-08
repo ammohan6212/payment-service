@@ -434,7 +434,7 @@ pipeline {
                         }
                     }
                 }
-                stage("Deploy to Dev") {
+                stage("Deploy to test environment") {
                     steps {
                         script {
                             try {
@@ -489,7 +489,7 @@ pipeline {
                         performSanityTesting(env.DETECTED_LANG)
                         performIntegrationTesting(env.DETECTED_LANG)
                         performApiTesting(env.DETECTED_LANG)
-                        performDatabaseTesting()
+                        performDatabaseTesting(env.DETECTED_LANG)
                         performRegressionTesting(env.DETECTED_LANG)
                         performLoadPerformanceTesting(env.DETECTED_LANG)
                         // performChaosTestingAfterDeploy(env.DETECTED_LANG)  ###this is optional here
@@ -592,83 +592,63 @@ pipeline {
                         }
                     }
                 }
-                // stage("Deploy to prod at peak off-hours") {
-                //     steps {
-                //         script {
-                //             try {
-                //                 withKubeConfig(
-                //                     caCertificate: env.kubernetesCaCertificate,clusterName: env.kubernetesClusterName,contextName: '',credentialsId: env.kubernetesCredentialsId,namespace: "${env.BRANCH_NAME}",restrictKubeConfigAccess: false,serverUrl: env.kubernetes_endpoint
-                //                 ) {
-                //                     sh """
-                //                     kubectl apply -f ${service_name}-deployment.yaml -n ${env.BRANCH_NAME}
-                //                     kubectl rollout status deployment/${service_name} -n ${env.BRANCH_NAME}
-                //                     """
-                //                 }
-                //             } catch (err) {
-                //                 echo "failed to deploy to the production ${err}"
-                //                 error("Stopping pipeline")
-                //             }
-                //         }
-                //     }
-                // }
-                // stage('Automated Post-Deployment Verification & Rollback') {
-                //     steps {
-                //         script {
-                //             withKubeConfig(
-                //                     caCertificate: env.kubernetesCaCertificate,clusterName: env.kubernetesClusterName,contextName: '',credentialsId: env.kubernetesCredentialsId,namespace: "${env.BRANCH_NAME}",restrictKubeConfigAccess: false,serverUrl: env.kubernetes_endpoint
-                //                 ) {
-                //                 def maxRetries = 5
-                //                 def retryInterval = 30 // seconds
-                //                 def deploymentHealthy = false
-
-                //                 for (int i = 0; i < maxRetries; i++) {
-                //                     try {
-                //                         // Run health check inside cluster using ephemeral pod
-                //                         def response = sh(
-                //                             script: """
-                //                             kubectl run tmp-shell --rm -i --tty --image=curlimages/curl --namespace ${env.BRANCH_NAME} -- /bin/sh -c "curl -o /dev/null -s -w '%{http_code}\\n' http://${env.service_name}.${env.BRANCH_NAME}.svc.cluster.local:${env.service_port}"
-                //                             """,
-                //                             returnStdout: true
-                //                         ).trim()
-
-                //                         if (response == '200') {
-                //                             echo "✅ Application health check passed inside cluster."
-                //                             deploymentHealthy = true
-                //                             break
-                //                         } else {
-                //                             echo "⚠️ Application health check failed with status ${response}. Retrying in ${retryInterval} seconds..."
-                //                         }
-                //                     } catch (err) {
-                //                         echo "⚠️ Health check command error: ${err.getMessage()}. Retrying in ${retryInterval} seconds..."
-                //                     }
-                //                     sleep retryInterval
-                //                 }
-
-                //                 if (!deploymentHealthy) {
-                //                     echo "🔴 Automated health checks failed after multiple retries. Initiating rollback..."
-                //                     try {
-                //                         sh "kubectl rollout undo deployment/${env.service_name} -n ${env.BRANCH_NAME}"
-                //                         echo "✅ Rollback command completed."
-                //                     } catch (err) {
-                //                         echo "❌ Rollback command failed: ${err.getMessage()}"
-                //                     }
-                //                     currentBuild.result = 'FAILURE'
-                //                     error("🔴 Production deployment unhealthy. Automated rollback executed. Pipeline failed.")
-                //                 } else {
-                //                     echo "✅ Automated post-deployment verification passed."
-                //                 }
-                //             }
-                //         }
-                //     }
-                // }
+               stage("Deploy to Dev") {
+                    steps {
+                        script {
+                            try {
+                                withKubeConfig(
+                                    credentialsId: env.kubernetesCredentialsId,
+                                    serverUrl: env.kubernetes_endpoint,
+                                    namespace: "${env.BRANCH_NAME}",
+                                    contextName: '',
+                                    restrictKubeConfigAccess: false
+                                ) {
+                                    dir("kubernetes") {  // 👈 Change this to your folder name
+                                        sh """ 
+                                        helm upgrade --install ${env.service_name} . \
+                                            -f values-${env.BRANCH_NAME}.yaml \
+                                            --set ${env.service_name}.image=${env.docker_username}/${env.service_name}-${env.BRANCH_NAME}:${env.version} \
+                                            --namespace ${env.BRANCH_NAME}
+                                        """
+                                    }
+                                }
+                            } catch (err) {
+                                echo "Failed to deploy to the dev environment: ${err}"
+                                error("Stopping pipeline")
+                            }
+                        }
+                    }
+                }
+                stage("checking the services that are running or not") {
+                    steps {
+                        script {
+                            try {
+                                withKubeConfig(
+                                    credentialsId: env.kubernetesCredentialsId,
+                                    serverUrl: env.kubernetes_endpoint,
+                                    namespace: "${env.BRANCH_NAME}",
+                                    contextName: '',
+                                    restrictKubeConfigAccess: false
+                                ) {
+                                    dir("kubernetes") {  // 👈 Change this to your folder name
+                                        checkproduction(servicesToCheck, "${env.BRANCH_NAME}")
+                                    }
+                                }
+                            } catch (err) {
+                                echo "services are not running : ${err}"
+                                error("Stopping pipeline")
+                            }
+                        }
+                    }
+                }
                 stage("Smoke Test and sanity test and synthatic test and  in preProduction") {
                     steps {
                         performSmokeTesting(env.DETECTED_LANG)
                         performSanityTesting(env.DETECTED_LANG)
-                        // performIntegrationTesting(env.DETECTED_LANG)
-                        // performApiTesting(env.DETECTED_LANG)
+                        performIntegrationTesting(env.DETECTED_LANG)
+                        performApiTesting(env.DETECTED_LANG)
                         performRegressionTesting(env.DETECTED_LANG)
-                        performDatabaseTesting()
+                        performDatabaseTesting(env.DETECTED_LANG)
                         performChaosTestingAfterDeploy(env.DETECTED_LANG)
                     }
                 }
