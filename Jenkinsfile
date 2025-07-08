@@ -152,7 +152,8 @@ pipeline {
                                     dir("kubernetes") {  // 👈 Change this to your folder name
                                         sh """ 
                                         ls -l
-                                        helm upgrade --install ${env.service_name}  .  -f values-${env.BRANCH_NAME}.yaml --set ${env.service_name}.image=${env.docker_username}/${env.service_name}-${env.BRANCH_NAME}:${env.version}
+                                        kubectl delete -f .
+                                        // helm upgrade --install ${env.service_name}  .  -f values-${env.BRANCH_NAME}.yaml --set ${env.service_name}.image=${env.docker_username}/${env.service_name}-${env.BRANCH_NAME}:${env.version}
                                         """
                                     }
                                 }

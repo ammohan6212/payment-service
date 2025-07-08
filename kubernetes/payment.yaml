@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payment
+  template:
+    metadata:
+      labels:
+        app: payment
+    spec:
+      containers:
+        - name: payment
+          image: mohan14242ai/payment-dev:v1.0.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081
+          env:
+            - name: DATABASE_URL
+              value: postgresql://postgres:postgres@db1:5432/mydb
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment
+  namespace: dev
+spec:
+  selector:
+    app: payment
+  ports:
+    - port: 8081
+      targetPort: 8081
