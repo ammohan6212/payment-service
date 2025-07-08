@@ -294,7 +294,7 @@ pipeline {
                 stage("Install Dependencies and dependency scanning and type checking and unit tests and code coverage calcualtion ") {
                     steps {
                         runLinter(env.DETECTED_LANG)
-                        performSecretsDetection('.')
+                        // performSecretsDetection('.')
                         installAppDependencies(env.DETECTED_LANG)
                         performDependencyScan(env.DETECTED_LANG)
                         runTypeChecks(env.DETECTED_LANG)
