@@ -48,32 +48,31 @@ pipeline {
                         }
                     }
                 }
+                stage("Linting (App Code, Terraform, Kubernetes, Docker)") {
+                    steps {
+                        runLinter(env.DETECTED_LANG)
+                        // runInfrastructureLinting('terraform/')
+                        // runKubernetesLinting('kubernetes/') 
+                        // validateDockerImage('Dockerfile')
+                    }
+                }
+                // stage("Secrets Detection") {
+                //     steps {
+                //         performSecretsDetection('.') // Scan the entire workspace
+                //     }
+                // }
                 stage("Building the Application") {
                     steps {
                         buildApplication(env.DETECTED_LANG)
                     }
                 }
-                // stage("Linting the Code and terraform linting and kubernetes linting and  docker linting") {
-                //     steps {
-                //         runLinter(env.DETECTED_LANG)
-                //         runInfrastructureLinting('terraform/')
-                //         runKubernetesLinting('kubernetes/') 
-                //         validateDockerImage('Dockerfile')
-                //     }
-                // }
-                // stage("Secrets Detection") {
-                     
-                //     steps {
-                //         performSecretsDetection('.') // Scan the entire workspace
-                //     }
-                // }
                 stage("Install Dependencies and dependency scanning and type checking and unit tests and code coverage calcualtion ") {
                     steps {
                         installAppDependencies(env.DETECTED_LANG)
-                        // performDependencyScan(env.DETECTED_LANG)
-                        // runTypeChecks(env.DETECTED_LANG)
-                        // runUnitTests(env.DETECTED_LANG)
-                        // calculateCodeCoverage(env.DETECTED_LANG)
+                        performDependencyScan(env.DETECTED_LANG)
+                        runTypeChecks(env.DETECTED_LANG)
+                        runUnitTests(env.DETECTED_LANG)
+                        calculateCodeCoverage(env.DETECTED_LANG)
                     }
                 }
                 // stage("perform sonarqube scans"){
@@ -354,10 +353,27 @@ pipeline {
                         }
                     }
                 }
-                stage("Install Dependencies and dependency scanning and type checking and unit tests and code coverage calcualtion ") {
+                stage("Linting (App Code, Terraform, Kubernetes, Docker)") {
                     steps {
                         runLinter(env.DETECTED_LANG)
-                        performSecretsDetection('.')
+                        // runInfrastructureLinting('terraform/')
+                        // runKubernetesLinting('kubernetes/') 
+                        // validateDockerImage('Dockerfile')
+                    }
+                }
+                // stage("Secrets Detection") {
+                     
+                //     steps {
+                //         performSecretsDetection('.') // Scan the entire workspace
+                //     }
+                // }
+                stage("Building the Application") {
+                    steps {
+                        buildApplication(env.DETECTED_LANG)
+                    }
+                }
+                stage("Install Dependencies and dependency scanning and type checking and unit tests and code coverage calcualtion ") {
+                    steps {
                         installAppDependencies(env.DETECTED_LANG)
                         performDependencyScan(env.DETECTED_LANG)
                         runTypeChecks(env.DETECTED_LANG)
@@ -366,7 +382,8 @@ pipeline {
                     }
                 }
                 // stage("perform sonarqube scans"){
-                //     steps{      
+                //     steps{     
+                //         echo "sonarqube test happens here" 
                 //         runSonarQubeScan(env.SONAR_PROJECT_KEY)
                 //     }
                 // }
@@ -375,6 +392,13 @@ pipeline {
                 //         waitForQualityGate abortPipeline: true
                 //     }
                 // }
+                stage("Mutation Testing and snapshot and component testing at Dev") {
+                    steps {
+                        runMutationTests(env.DETECTED_LANG)
+                        runSnapshotTests(env.DETECTED_LANG)
+                        runComponentTests(env.DETECTED_LANG)
+                    }
+                }
                 stage("Create Archiving File and push the artifact ") {    
                     steps {
                         script {
