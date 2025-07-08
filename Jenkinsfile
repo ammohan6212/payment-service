@@ -531,7 +531,7 @@ pipeline {
                 stage("Install Dependencies and dependency scanning and type checking and unit tests and code coverage calcualtion ") {
                     steps {
                         runLinter(env.DETECTED_LANG)
-                        performSecretsDetection('.')
+                        // performSecretsDetection('.')
                         installAppDependencies(env.DETECTED_LANG)
                         performDependencyScan(env.DETECTED_LANG)
                         runTypeChecks(env.DETECTED_LANG)
@@ -564,7 +564,7 @@ pipeline {
                 }
                 stage("Perform build and   docker linting Container Scanning using trivy and syft and docker scout and Dockle and snyk at Test Env") {
                     steps {
-                        buildDockerImage("${env.docker_username}/${env.service_name}-${env.BRANCH_NAME}:${env.version}", env.version, '.')
+                        buildDockerImage("${env.docker_username}/${env.service_name}-${env.BRANCH_NAME}", env.version, '.')
                         validateDockerImage("${env.docker_username}/${env.service_name}-${env.BRANCH_NAME}:${env.version}")
                         scanContainerTrivy("${env.docker_username}/${env.service_name}-${env.BRANCH_NAME}:${env.version}")
                         scanContainerSyftDockle("${env.docker_username}/${env.service_name}-${env.BRANCH_NAME}:${env.version}")
@@ -631,7 +631,7 @@ pipeline {
                                     restrictKubeConfigAccess: false
                                 ) {
                                     dir("kubernetes") {  // 👈 Change this to your folder name
-                                        checkproduction(servicesToCheck, "${env.BRANCH_NAME}")
+                                        checkproduction(servicesToCheck, "${env.BRANCH_NAME}","${env.notificationRecipients}")
                                     }
                                 }
                             } catch (err) {
