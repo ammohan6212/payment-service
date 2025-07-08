@@ -631,7 +631,7 @@ pipeline {
                                     restrictKubeConfigAccess: false
                                 ) {
                                     dir("kubernetes") {  // 👈 Change this to your folder name
-                                        checkproduction(servicesToCheck, "${env.BRANCH_NAME}")
+                                        checkproduction(servicesToCheck, "${env.BRANCH_NAME}","${env.notificationRecipients}")
                                     }
                                 }
                             } catch (err) {
