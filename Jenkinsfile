@@ -48,6 +48,11 @@ pipeline {
                         }
                     }
                 }
+                stage("Building the Application") {
+                    steps {
+                        buildApplication(env.DETECTED_LANG)
+                    }
+                }
                 // stage("Linting the Code and terraform linting and kubernetes linting and  docker linting") {
                 //     steps {
                 //         runLinter(env.DETECTED_LANG)
@@ -87,11 +92,6 @@ pipeline {
                         runMutationTests(env.DETECTED_LANG)
                         runSnapshotTests(env.DETECTED_LANG)
                         runComponentTests(env.DETECTED_LANG)
-                    }
-                }
-                stage("Building the Application") {
-                    steps {
-                        buildApplication(env.DETECTED_LANG)
                     }
                 }
                 stage("Create Archiving File and push the artifact ") {
@@ -291,10 +291,15 @@ pipeline {
                         }
                     }
                 }
+                stage("Building the Application") {
+                    steps {
+                        buildApplication(env.DETECTED_LANG)
+                    }
+                }
                 stage("Install Dependencies and dependency scanning and type checking and unit tests and code coverage calcualtion ") {
                     steps {
                         runLinter(env.DETECTED_LANG)
-                        // performSecretsDetection('.')
+                        performSecretsDetection('.')
                         installAppDependencies(env.DETECTED_LANG)
                         performDependencyScan(env.DETECTED_LANG)
                         runTypeChecks(env.DETECTED_LANG)
@@ -318,11 +323,6 @@ pipeline {
                         runSnapshotTests(env.DETECTED_LANG)
                         runComponentTests(env.DETECTED_LANG)
                         performRegressionTesting(env.DETECTED_LANG)
-                    }
-                }
-                stage("Building the Application") {
-                    steps {
-                        buildApplication(env.DETECTED_LANG)
                     }
                 }    
                 stage("Create Archiving File and push the artifact ") {
