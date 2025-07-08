@@ -11,9 +11,11 @@ COPY . .
 RUN cargo build --release
 
 # Stage 2: Runtime
-FROM debian:bookworm-slim
-
-RUN apt-get update && apt-get install -y \
+# Stage 2: Runtime  #ubuntu:24.04-slim
+FROM debian:trixie-slim    
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y \
     ca-certificates \
     libpq5 \
  && rm -rf /var/lib/apt/lists/*
