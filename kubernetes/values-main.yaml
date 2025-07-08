@@ -1,0 +1,3 @@
+payment:
+  image: mohan14242ai/payment-main:v1.0.0 
+  namespace: main
