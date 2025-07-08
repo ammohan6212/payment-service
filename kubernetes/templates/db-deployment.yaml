@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: db1
-  namespace: dev
+  namespace: {{ .Values.payment.namespace }}
 spec:
   replicas: 1
   selector:
