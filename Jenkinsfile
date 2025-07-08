@@ -411,23 +411,56 @@ pipeline {
                         }
                     }
                 }
-                // stage("Deploy to test") {
-                //     steps {
-                //         script {
-                //             try {
-                //                 withKubeConfig(
-                //                     caCertificate: env.kubernetesCaCertificate,clusterName: env.kubernetesClusterName,contextName: '',credentialsId: env.kubernetesCredentialsId,namespace: "${env.BRANCH_NAME}",restrictKubeConfigAccess: false,serverUrl: env.kubernetes_endpoint
-                //                 ) {
-                //                     // Change Kubernetes service selector to route traffic to Green
-                //                     sh """kubectl apply -f ${env.service_name}-deployment.yml -n ${env.BRANCH_NAME}"""
-                //                 }
-                //             } catch (err) {
-                //                 echo "failed to deploy to the production ${err}"
-                //                 error("Stopping pipeline")
-                //             }
-                //         }
-                //     }
-                // }
+                stage("Deploy to Dev") {
+                    steps {
+                        script {
+                            try {
+                                withKubeConfig(
+                                    credentialsId: env.kubernetesCredentialsId,
+                                    serverUrl: env.kubernetes_endpoint,
+                                    namespace: "${env.BRANCH_NAME}",
+                                    contextName: '',
+                                    restrictKubeConfigAccess: false
+                                ) {
+                                    dir("kubernetes") {  // 👈 Change this to your folder name
+                                        sh """ 
+                                        helm upgrade --install ${env.service_name} . \
+                                            -f values-${env.BRANCH_NAME}.yaml \
+                                            --set ${env.service_name}.image=${env.docker_username}/${env.service_name}-${env.BRANCH_NAME}:${env.version} \
+                                            --namespace ${env.BRANCH_NAME} \
+                                            --create-namespace
+                                        """
+                                    }
+                                }
+                            } catch (err) {
+                                echo "Failed to deploy to the dev environment: ${err}"
+                                error("Stopping pipeline")
+                            }
+                        }
+                    }
+                }
+                stage("checking the services that are running or not") {
+                    steps {
+                        script {
+                            try {
+                                withKubeConfig(
+                                    credentialsId: env.kubernetesCredentialsId,
+                                    serverUrl: env.kubernetes_endpoint,
+                                    namespace: "${env.BRANCH_NAME}",
+                                    contextName: '',
+                                    restrictKubeConfigAccess: false
+                                ) {
+                                    dir("kubernetes") {  // 👈 Change this to your folder name
+                                        checkk8services(servicesToCheck, "${env.BRANCH_NAME}")
+                                    }
+                                }
+                            } catch (err) {
+                                echo "services are not running : ${err}"
+                                error("Stopping pipeline")
+                            }
+                        }
+                    }
+                }
                 stage("Smoke Test and sanity and integration and functional and api and regression in Test Env") {
                     steps {
                         performSmokeTesting(env.DETECTED_LANG)
@@ -445,29 +478,6 @@ pipeline {
                         generateVersionFile('gcp', "${env.bucket_name}/version-files/", "${gcp_credid}")
                     }
                 }
-                stage("Need the manual approval to complete the test env"){
-                    steps{
-                        sendEmailNotification('Alert', env.notificationRecipients)
-                    }
-                }
-                stage("Approval for Test Success") {
-                    steps {
-                        script {
-                            try {
-                                input message: "Do you approve to proceed to Staging Environment?",
-                                    ok: "Approve",
-                                    submitter: "manager,admin"
-                                echo "Approval granted. Proceeding to Staging Environment."
-                                currentBuild.result = 'SUCCESS'
-                            } catch (err) {
-                                echo "Approval was not granted. Error: ${err}"
-                                currentBuild.result = 'FAILURE'
-                                error("Pipeline failed due to rejection or interruption.")
-                            }
-                        }
-                    }
-                }
-
             }
         }
         stage("deploying the application into prod"){
