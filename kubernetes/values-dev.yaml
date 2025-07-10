@@ -1,0 +1,3 @@
+payment:
+  image: mohan14242ai/payment-dev:v1.0.0
+  namespace: dev
