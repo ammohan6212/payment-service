@@ -10,6 +10,7 @@ use axum::{
 use sqlx::postgres::PgPoolOptions;
 use std::env;
 use std::net::SocketAddr;
+use std::time::Duration;
 use tokio::net::TcpListener;
 use tracing_subscriber;
 
@@ -22,7 +23,13 @@ async fn main() {
 
     tracing::info!("📦 Connecting to PostgreSQL database...");
     let pool = PgPoolOptions::new()
-        .max_connections(5)
+        .max_connections(20)
+        .acquire_timeout(Duration::from_secs(5)) // e.g., 5 seconds to get a connection from the pool
+        .connect_timeout(Duration::from_secs(5)) // e.g., 5 seconds to establish a new DB connection
+        // Optional: Keep a minimum number of connections alive
+        // .min_connections(5)
+        // Optional: Disconnect idle connections after a certain time
+        // .idle_timeout(Duration::from_secs(300)) // 5 minutes
         .connect(&database_url)
         .await
         .expect("❌ Failed to connect to the database");
