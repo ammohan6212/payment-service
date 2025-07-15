@@ -7,9 +7,10 @@ use axum::{
     Router,
     serve::serve,
 };
-use sqlx::postgres::PgPoolOptions;
+use sqlx::postgres::{PgPoolOptions, PgConnectOptions}; // Import PgConnectOptions
 use std::env;
 use std::net::SocketAddr;
+use std::str::FromStr; // Needed for PgConnectOptions::from_str
 use std::time::Duration;
 use tokio::net::TcpListener;
 use tracing_subscriber;
@@ -22,15 +23,22 @@ async fn main() {
         .expect("❌ DATABASE_URL must be set in environment");
 
     tracing::info!("📦 Connecting to PostgreSQL database...");
+
+    // 1. Parse the DATABASE_URL into PgConnectOptions
+    let connect_options = PgConnectOptions::from_str(&database_url)
+        .expect("Invalid DATABASE_URL")
+        .connect_timeout(Duration::from_secs(5)); // Set connect_timeout here
+
+    // 2. Use connect_with and the configured PgConnectOptions
     let pool = PgPoolOptions::new()
         .max_connections(20)
-        .acquire_timeout(Duration::from_secs(5)) // e.g., 5 seconds to get a connection from the pool
-        .connect_timeout(Duration::from_secs(5)) // e.g., 5 seconds to establish a new DB connection
+        .acquire_timeout(Duration::from_secs(5)) // Timeout to get a connection from the pool
+        // Removed .connect_timeout() from here as it's now on connect_options
         // Optional: Keep a minimum number of connections alive
         // .min_connections(5)
         // Optional: Disconnect idle connections after a certain time
         // .idle_timeout(Duration::from_secs(300)) // 5 minutes
-        .connect(&database_url)
+        .connect_with(connect_options) // Use connect_with and the pre-configured options
         .await
         .expect("❌ Failed to connect to the database");
     tracing::info!("✅ Connected to database");
