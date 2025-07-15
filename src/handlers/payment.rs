@@ -64,7 +64,7 @@ pub async fn get_all_payments(
             image_url,
             payment_method,
             total,
-            seller_name
+            seller_name,
             address
         FROM orders
         ORDER BY created_at DESC
